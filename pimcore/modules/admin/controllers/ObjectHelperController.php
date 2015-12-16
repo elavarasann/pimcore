@@ -656,6 +656,32 @@ class   Admin_ObjectHelperController extends \Pimcore\Controller\Action\Admin {
         $class = Object\ClassDefinition::getById($this->getParam("classId"));
 
         $className = $class->getName();
+        
+        //get grid configuration file
+        $configFile = PIMCORE_CONFIGURATION_DIRECTORY . "/object/grid/" . $this->getParam ( "folderId" ) . "-user_" . $this->getUser ()->getId () . ".psf";
+        $gridConfig = Pimcore_Tool_Serialize::unserialize ( file_get_contents ( $configFile ) );
+ 
+        if(empty($gridConfig)) {
+        	echo 'Error: Grid column is not configured yet.';
+        	exit;
+        }
+        
+        // collect fields from field defenitions
+         foreach ( $gridConfig ['columns'] as $key => $columns ) {
+                $allColumns [] = $key;
+         }
+
+        // object bricks filter and export
+        $bricks = array ();
+        foreach ( $allColumns as $f ) {
+                $parts = explode ( "~", $f );
+                $sub = substr ( $f, 0, 1 );
+                if (substr ( $f, 0, 1 ) == "~") {
+                } else if (count ( $parts ) > 1) {
+                        $bricks [$parts [0]] = $parts [0];
+                }
+        }
+
 
         $listClass = "\\Pimcore\\Model\\Object\\" . ucfirst($className) . "\\Listing";
 
@@ -672,6 +698,14 @@ class   Admin_ObjectHelperController extends \Pimcore\Controller\Action\Admin {
         }
 
         $list = new $listClass();
+        
+        // add object bricks to filter
+        if (! empty ( $bricks )) {
+                foreach ( $bricks as $b ) {
+                        $list->addObjectbrick ( $b );
+                }
+        }
+        
         $list->setCondition(implode(" AND ", $conditionFilters));
         $list->setOrder("ASC");
         $list->setOrderKey("o_id");
