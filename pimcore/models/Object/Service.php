@@ -153,7 +153,7 @@ class Service extends Model\Element\Service {
         $new->setCreationDate(time());
         $new->save();
 
-        $this->updateChilds($target, $new);
+       // $this->updateChilds($target, $new);
 
         return $new;
     }
