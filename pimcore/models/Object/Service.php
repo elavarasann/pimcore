@@ -979,8 +979,8 @@ class Service extends Model\Element\Service {
                 }
             }
         }
-
-        $mergedFieldDefinition = unserialize(serialize($masterFieldDefinition));
+        
+        $mergedFieldDefinition = $masterFieldDefinition;
 
         if (count($layoutDefinitions)) {
             foreach ($mergedFieldDefinition as $key => $def) {
